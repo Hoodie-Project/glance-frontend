@@ -2,6 +2,6 @@
 node_modules
 out
 next-env.d.ts
+package-lock.json
 *.log
 .DS_Store
-
