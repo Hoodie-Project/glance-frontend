@@ -1,0 +1,10 @@
+{
+  "name": "Glance",
+  "short_name": "Glance",
+  "description": "Location-tagged local thread feed for Seoul",
+  "display": "standalone",
+  "background_color": "#09090f",
+  "theme_color": "#09090f",
+  "lang": "ko-KR",
+  "start_url": "/map"
+}
