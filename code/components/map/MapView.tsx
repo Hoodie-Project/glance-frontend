@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Crosshair, MapPin, Search, SlidersHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useNaverMap } from "@/hooks/use-naver-map";
-import { HotRegions } from "@/components/map/HotRegions";
 
 type Coordinate = {
   lat: number;
@@ -179,10 +178,6 @@ export function MapView() {
                     : "지도를 불러오는 중입니다.")}
             </span>
           </div>
-        </div>
-
-        <div className="map-overlay-scroll">
-          <HotRegions />
         </div>
       </div>
 
