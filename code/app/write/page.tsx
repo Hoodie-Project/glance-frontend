@@ -1,8 +1,25 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { WriteForm } from "@/components/thread/write-form";
+import { WriteForm } from "@/components/thread/WriteForm";
 
-export default function WritePage() {
+type WritePageProps = {
+  searchParams: Promise<{
+    lat?: string;
+    lng?: string;
+    source?: string;
+  }>;
+};
+
+export default async function WritePage({ searchParams }: WritePageProps) {
+  const params = await searchParams;
+  const currentLocation =
+    params.source === "current-location" && params.lat && params.lng
+      ? {
+          lat: params.lat,
+          lng: params.lng
+        }
+      : null;
+
   return (
     <main className="app-shell" style={{ paddingTop: "max(12px, env(safe-area-inset-top))", paddingBottom: 32 }}>
       <div className="page-header">
@@ -11,8 +28,7 @@ export default function WritePage() {
           지도
         </Link>
       </div>
-      <WriteForm />
+      <WriteForm currentLocation={currentLocation} />
     </main>
   );
 }
-

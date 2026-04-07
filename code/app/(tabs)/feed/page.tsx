@@ -1,5 +1,5 @@
-import { PageHeader } from "@/components/layout/page-header";
-import { FeedList } from "@/components/thread/feed-list";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { FeedList } from "@/components/thread/FeedList";
 
 export default function FeedPage() {
   return (
@@ -12,4 +12,3 @@ export default function FeedPage() {
     </main>
   );
 }
-
