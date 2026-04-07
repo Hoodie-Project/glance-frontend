@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { ThreadDetail } from "@/components/thread/thread-detail";
+import { ThreadDetail } from "@/components/thread/ThreadDetail";
 
 type ThreadDetailPageProps = {
   params: Promise<{
@@ -23,4 +23,3 @@ export default async function ThreadDetailPage({ params }: ThreadDetailPageProps
     </main>
   );
 }
-

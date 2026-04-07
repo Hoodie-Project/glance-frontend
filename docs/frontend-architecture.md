@@ -1,8 +1,8 @@
-# 글랜스 프론트엔드 아키텍처
+# 힐끔 프론트엔드 아키텍처
 
 ## 1. 개요
 
-- 문서 목적: `/code` 하위에 구성한 글랜스 프론트엔드 초기 구조와 설계 의도를 기록
+- 문서 목적: `/code` 하위에 구성한 힐끔 프론트엔드 초기 구조와 설계 의도를 기록
 - 대상 프로젝트: Next.js 기반 모바일 웹뷰(PWA) 프론트엔드
 - 현재 기준: App Router 기반 초기 세팅 완료
 
@@ -94,16 +94,16 @@
       /page.tsx
   /components
     /layout
-      /page-header.tsx
+      /PageHeader.tsx
     /navigation
-      /bottom-tab-bar.tsx
+      /BottomTabBar.tsx
     /map
-      /hot-regions.tsx
-      /map-view.tsx
+      /HotRegions.tsx
+      /MapView.tsx
     /thread
-      /feed-list.tsx
-      /thread-detail.tsx
-      /write-form.tsx
+      /FeedList.tsx
+      /ThreadDetail.tsx
+      /WriteForm.tsx
   /lib
     /utils.ts
   /types
@@ -162,20 +162,20 @@
 - [app/(tabs)/feed/page.tsx](/Users/shinhayeong/glance-frontend/code/app/(tabs)/feed/page.tsx)
 - [app/thread/[id]/page.tsx](/Users/shinhayeong/glance-frontend/code/app/thread/[id]/page.tsx)
 - [app/write/page.tsx](/Users/shinhayeong/glance-frontend/code/app/write/page.tsx)
-- [components/layout/page-header.tsx](/Users/shinhayeong/glance-frontend/code/components/layout/page-header.tsx)
-- [components/map/hot-regions.tsx](/Users/shinhayeong/glance-frontend/code/components/map/hot-regions.tsx)
+- [components/layout/PageHeader.tsx](/Users/shinhayeong/glance-frontend/code/components/layout/PageHeader.tsx)
+- [components/map/HotRegions.tsx](/Users/shinhayeong/glance-frontend/code/components/map/HotRegions.tsx)
 
 ### 클라이언트 컴포넌트
 
-- [components/navigation/bottom-tab-bar.tsx](/Users/shinhayeong/glance-frontend/code/components/navigation/bottom-tab-bar.tsx)
+- [components/navigation/BottomTabBar.tsx](/Users/shinhayeong/glance-frontend/code/components/navigation/BottomTabBar.tsx)
   - 현재 경로에 따라 활성 탭 표시가 필요함
-- [components/map/map-view.tsx](/Users/shinhayeong/glance-frontend/code/components/map/map-view.tsx)
+- [components/map/MapView.tsx](/Users/shinhayeong/glance-frontend/code/components/map/MapView.tsx)
   - 추후 네이버 지도 SDK, 브라우저 API 연동 대상
-- [components/thread/feed-list.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/feed-list.tsx)
+- [components/thread/FeedList.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/FeedList.tsx)
   - framer-motion 사용
-- [components/thread/thread-detail.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/thread-detail.tsx)
+- [components/thread/ThreadDetail.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/ThreadDetail.tsx)
   - 좋아요/댓글 입력 상태 관리
-- [components/thread/write-form.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/write-form.tsx)
+- [components/thread/WriteForm.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/WriteForm.tsx)
   - 폼 입력 상태와 버튼 활성화 처리
 
 ### 분리 의도
@@ -229,7 +229,7 @@
 
 ### 현재 상태
 
-- [components/map/map-view.tsx](/Users/shinhayeong/glance-frontend/code/components/map/map-view.tsx)는 임시 레이아웃
+- [components/map/MapView.tsx](/Users/shinhayeong/glance-frontend/code/components/map/MapView.tsx)는 임시 레이아웃
 - 아직 네이버 지도 SDK는 연결되지 않음
 
 ### 추후 구현 방향
@@ -240,9 +240,9 @@
 
 ### 권장 분리안
 
-- `components/map/map-view.tsx`
+- `components/map/MapView.tsx`
   - 지도 화면 UI 컨테이너
-- `components/map/naver-map.tsx`
+- `components/map/NaverMap.tsx`
   - 실제 지도 렌더링
 - `hooks/use-naver-map.ts`
   - SDK 로드 및 인스턴스 생명주기 관리

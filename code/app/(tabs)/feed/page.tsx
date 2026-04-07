@@ -1,5 +1,6 @@
-import { PageHeader } from "@/components/layout/page-header";
-import { FeedList } from "@/components/thread/feed-list";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { HotRegions } from "@/components/map/HotRegions";
+import { FeedList } from "@/components/thread/FeedList";
 
 export default function FeedPage() {
   return (
@@ -8,8 +9,8 @@ export default function FeedPage() {
         title="실시간 피드"
         subtitle="최신 작성 순으로 스레드를 확인합니다."
       />
+      <HotRegions />
       <FeedList />
     </main>
   );
 }
-

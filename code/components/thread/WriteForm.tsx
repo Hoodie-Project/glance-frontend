@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 
-export function WriteForm() {
+type WriteFormProps = {
+  currentLocation?: {
+    lat: string;
+    lng: string;
+  } | null;
+};
+
+export function WriteForm({ currentLocation }: WriteFormProps) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [tag, setTag] = useState("");
@@ -15,6 +22,19 @@ export function WriteForm() {
       <p style={{ marginTop: 8, color: "var(--muted)", lineHeight: 1.6 }}>
         GPS 없이 태그로 장소를 표현합니다. 제목 또는 본문이 50자 이상일 때만 작성 완료 버튼이 활성화됩니다.
       </p>
+
+      {currentLocation ? (
+        <div
+          className="chip"
+          style={{
+            width: "fit-content",
+            marginTop: 16,
+            background: "var(--accent-soft)"
+          }}
+        >
+          현재 위치 {currentLocation.lat}, {currentLocation.lng}
+        </div>
+      ) : null}
 
       <div style={{ display: "grid", gap: 14, marginTop: 20 }}>
         <label style={{ display: "grid", gap: 8 }}>
