@@ -6,7 +6,7 @@ export default function TabsLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="app-shell" style={{ paddingBottom: "calc(var(--tabbar-height) + 24px)" }}>
+    <div className="app-shell">
       {children}
       <BottomTabBar />
     </div>
