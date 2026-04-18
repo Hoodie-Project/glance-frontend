@@ -2,7 +2,7 @@
 
 import { List, MapPinned, Plus } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const tabs = [
   { href: "/map", label: "지도", icon: MapPinned },
@@ -11,6 +11,12 @@ const tabs = [
 
 export function BottomTabBar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isMapSelectMode = pathname === "/map" && searchParams.get("select") === "1";
+
+  if (isMapSelectMode) {
+    return null;
+  }
 
   return (
     <nav className="bottom-tab-shell">

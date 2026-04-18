@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 
 export default function TabsLayout({
@@ -8,7 +9,9 @@ export default function TabsLayout({
   return (
     <div className="app-shell">
       {children}
-      <BottomTabBar />
+      <Suspense fallback={null}>
+        <BottomTabBar />
+      </Suspense>
     </div>
   );
 }

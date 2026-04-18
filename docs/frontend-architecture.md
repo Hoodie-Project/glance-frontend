@@ -157,6 +157,12 @@
 
 - 구현: [app/write/page.tsx](/Users/shinhayeong/glance-frontend/code/app/write/page.tsx)
 - 역할: 스레드 작성 화면
+- 포함 요소
+  - 뒤로가기 버튼 및 이탈 확인 모달
+  - 제목, 본문, 장소, 닉네임, 비밀번호 입력
+  - 태그 입력 진입 영역
+  - 힐끔 대상 성별/묘사 선택
+  - 확인 버튼과 유효성 검증 상태
 
 ## 7. 서버 컴포넌트 / 클라이언트 컴포넌트 분리 기준
 
@@ -182,7 +188,7 @@
 - [components/thread/ThreadDetail.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/ThreadDetail.tsx)
   - 좋아요/댓글 입력 상태 관리
 - [components/thread/WriteForm.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/WriteForm.tsx)
-  - 폼 입력 상태와 버튼 활성화 처리
+  - 폼 입력 상태, 랜덤 초기값, 버튼 활성화, 유효성 검증 처리
 
 ### 분리 의도
 
@@ -231,7 +237,43 @@
 - 캐시 정책
 - 웹뷰 환경에서 설치/업데이트 UX 검토
 
-## 10. 지도 아키텍처 방향
+## 10. 스레드 작성 아키텍처 방향
+
+### 작성 상태 모델
+
+- `title: string`
+- `content: string`
+- `location: { lat: number; lng: number; name: string } | null`
+- `nickname: string`
+- `password: string`
+- `tags: string[]`
+- `gender: "male" | "female" | null`
+- `description: string | null`
+- `errors`
+  - 필수 필드 누락, 글자 수 초과, 비밀번호 길이 오류를 표시하기 위한 UI 전용 상태
+- `isDirty`
+  - 뒤로가기 시 이탈 확인 모달 노출 여부 판단에 사용
+
+### 작성 화면 분리 원칙
+
+- `app/write/page.tsx`
+  - 작성 화면 라우트 엔트리
+- `components/thread/WriteForm.tsx`
+  - 메인 입력 폼과 검증 로직 담당
+- 추후 분리 후보
+  - `components/thread/TagInputSheet.tsx` 또는 `TagInputPage.tsx`
+  - `components/thread/LeaveConfirmDialog.tsx`
+  - `components/thread/DescriptionSelector.tsx`
+
+### 작성 플로우 메모
+
+- 초기 진입 시 닉네임과 비밀번호 랜덤값을 생성해 폼 초기값으로 주입
+- 확인 버튼 활성 조건은 제목, 본문, 장소, 비밀번호 입력 여부 기준
+- 제출 시에는 버튼 활성 여부와 별개로 전체 유효성 검사를 한 번 더 수행
+- 태그 입력은 메인 폼 내부 직접 입력보다 별도 단계로 분리하는 것이 요구사항에 맞음
+- 장소 입력은 지도 `+` 좌표 선택 플로우와 같은 소스를 재사용하는 방향이 적합함
+
+## 11. 지도 아키텍처 방향
 
 ### 현재 상태
 

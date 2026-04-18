@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Crosshair, MapPin, RefreshCcw } from "lucide-react";
+import { ChevronLeft, Crosshair, MapPin, RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { threadMarkers } from "@/data/threadMarkers";
 import { useNaverMap } from "@/hooks/use-naver-map";
@@ -159,7 +159,16 @@ function drawClusterMarkers(
   });
 }
 
-export function MapView() {
+type MapViewProps = {
+  isSelectMode?: boolean;
+  returnTo?: string;
+};
+
+function buildWriteLocationName(coordinate: Coordinate) {
+  return `선택한 위치 (${coordinate.lat.toFixed(5)}, ${coordinate.lng.toFixed(5)})`;
+}
+
+export function MapView({ isSelectMode = false, returnTo = "/write" }: MapViewProps) {
   const router = useRouter();
   const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
   const { error, isReady } = useNaverMap(clientId);
@@ -320,6 +329,20 @@ export function MapView() {
     mapRef.current.panTo(toLatLng(window.naver.maps, deviceLocation));
   };
 
+  const handleConfirmLocation = () => {
+    if (!currentLocation) {
+      return;
+    }
+
+    const params = new URLSearchParams({
+      lat: String(currentLocation.lat),
+      lng: String(currentLocation.lng),
+      locationName: buildWriteLocationName(currentLocation)
+    });
+
+    router.push(`${returnTo}?${params.toString()}`);
+  };
+
   return (
     <section
       className="map-canvas-shell"
@@ -350,7 +373,7 @@ export function MapView() {
         style={{
           position: "absolute",
           right: 17,
-          bottom: 110,
+          bottom: isSelectMode ? 146 : 110,
           zIndex: 10,
           display: "grid",
           gap: 6
@@ -369,6 +392,38 @@ export function MapView() {
           <Crosshair size={24} />
         </button>
       </div>
+
+      {isSelectMode ? (
+        <div
+          style={{
+            position: "absolute",
+            left: 16,
+            right: 16,
+            top: "max(16px, env(safe-area-inset-top))",
+            zIndex: 11,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12
+          }}
+        >
+          <button className="chip" onClick={() => router.back()} type="button">
+            <ChevronLeft size={16} />
+            뒤로가기
+          </button>
+          <div
+            className="surface"
+            style={{
+              padding: "10px 14px",
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.92)",
+              color: "#111"
+            }}
+          >
+            <strong>장소 선택</strong>
+          </div>
+        </div>
+      ) : null}
 
       {!clientId || error ? (
         <div
@@ -395,7 +450,42 @@ export function MapView() {
         </div>
       ) : null}
 
-      {selectedMarkerId ? (
+      {isSelectMode ? (
+        <div
+          style={{
+            position: "absolute",
+            left: 16,
+            right: 16,
+            bottom: "calc(24px + env(safe-area-inset-bottom))",
+            zIndex: 12
+          }}
+        >
+          <div
+            className="surface"
+            style={{
+              borderRadius: 28,
+              padding: 18,
+              background: "rgba(255, 255, 255, 0.98)",
+              color: "#111",
+              boxShadow: "0 18px 40px rgba(0, 0, 0, 0.08)"
+            }}
+          >
+            <strong style={{ display: "block", fontSize: 18 }}>이 위치를 장소로 사용할까요?</strong>
+            <p style={{ margin: "8px 0 0", color: "#666", lineHeight: 1.5 }}>
+              지도의 가운데 점 위치가 선택됩니다.
+              <br />
+              {currentLocation
+                ? `${currentLocation.lat.toFixed(5)}, ${currentLocation.lng.toFixed(5)}`
+                : "좌표를 불러오는 중입니다."}
+            </p>
+            <button className="map-wire-cta" onClick={handleConfirmLocation} type="button">
+              이 위치 선택
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {!isSelectMode && selectedMarkerId ? (
         <>
           <button
             aria-label="스레드 닫기"
