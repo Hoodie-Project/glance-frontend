@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090f;
-  --foreground: #f5f7fb;
-  --muted: #8a90a2;
-  --border: rgba(255, 255, 255, 0.1);
-  --card: rgba(14, 16, 24, 0.82);
-  --card-strong: rgba(22, 24, 36, 0.92);
+  --background: #fafafa;
+  --foreground: #111111;
+  --muted: #8a8a8a;
+  --border: rgba(17, 17, 17, 0.08);
+  --card: rgba(255, 255, 255, 0.96);
+  --card-strong: rgba(255, 255, 255, 0.98);
   --accent: #8f5cff;
   --accent-soft: rgba(143, 92, 255, 0.18);
   --page-max-width: 640px;
@@ -36,16 +36,14 @@
 
 html {
   min-height: 100%;
-  background:
-    radial-gradient(circle at top, rgba(143, 92, 255, 0.14), transparent 32%),
-    linear-gradient(180deg, #0a0b12 0%, #09090f 100%);
+  background: #fafafa;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
   color: var(--foreground);
-  background: transparent;
+  background: #fafafa;
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -70,7 +68,7 @@ textarea {
 .surface {
   border: 1px solid var(--border);
   background: var(--card);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(12px);
 }
 
 .page-header {
@@ -105,7 +103,7 @@ textarea {
   border: 1px solid var(--border);
   border-radius: 999px;
   color: var(--foreground);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .button-primary {
@@ -128,7 +126,7 @@ textarea {
   gap: 8px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.96);
   color: var(--foreground);
   padding: 12px 16px;
   cursor: pointer;
@@ -154,8 +152,9 @@ textarea {
   right: 0;
   bottom: 0;
   z-index: 1;
-  height: calc(env(safe-area-inset-bottom) + 34px);
-  background: #f7f7f4;
+  height: 0;
+  background: transparent;
+  pointer-events: none;
 }
 
 .map-canvas {
@@ -212,6 +211,44 @@ textarea {
   background: rgba(255, 255, 255, 0.96);
   color: #8a8a8a;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.map-gender-filter {
+  position: absolute;
+  top: max(18px, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 11;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  transform: translateX(-50%);
+}
+
+.map-gender-filter-button {
+  min-width: 76px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #3f3f46;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.map-gender-filter-button[data-active="true"] {
+  background: linear-gradient(135deg, #7c5cff 0%, #6b4cff 100%);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(124, 92, 255, 0.28);
 }
 
 .map-wire-button {
@@ -341,8 +378,10 @@ textarea {
   height: 50px;
   padding: 0;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  background: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.1);
   transform: translateX(-50%);
 }
 
@@ -372,4 +411,390 @@ textarea {
   color: #fff;
   transform: translateX(-50%);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
+}
+
+.feed-scope-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.feed-scope-filter-button {
+  min-width: 142px;
+  height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #444;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.feed-scope-filter-button[data-active="true"] {
+  background: linear-gradient(135deg, #7c5cff 0%, #6b4cff 100%);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(124, 92, 255, 0.28);
+}
+
+.feed-thread-card {
+  display: block;
+  padding: 30px 32px;
+  border-radius: 34px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.04),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  color: #111;
+}
+
+.feed-thread-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.feed-thread-title {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.45;
+  letter-spacing: -0.04em;
+}
+
+.feed-thread-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.feed-thread-author {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.feed-thread-time {
+  color: #111;
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.feed-thread-body {
+  margin: 22px 0 0;
+  color: #222;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  letter-spacing: -0.02em;
+}
+
+.feed-thread-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+  color: #888;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.feed-thread-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.feed-thread-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #6f46ff;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.feed-thread-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  color: #555;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.feed-thread-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.thread-detail-page {
+  background: #fafafa;
+}
+
+.thread-detail-shell {
+  padding-bottom: 28px;
+  color: #111;
+}
+
+.thread-detail-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0 18px;
+}
+
+.thread-detail-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #111;
+  cursor: pointer;
+}
+
+.thread-detail-header {
+  padding: 12px 4px 22px;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.thread-detail-author-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.thread-detail-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #111;
+}
+
+.thread-detail-author {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.thread-detail-time {
+  color: #8a8a8a;
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+
+.thread-detail-title {
+  margin: 28px 0 0;
+  font-size: 1.12rem;
+  font-weight: 800;
+  line-height: 1.45;
+  letter-spacing: -0.04em;
+}
+
+.thread-detail-body {
+  margin: 18px 0 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  letter-spacing: -0.02em;
+}
+
+.thread-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+  color: #7f7f7f;
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+
+.thread-detail-stats {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 18px;
+}
+
+.thread-detail-stats button,
+.thread-detail-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #111;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.thread-comments-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #111;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.thread-comments-list {
+  margin-top: 10px;
+}
+
+.thread-comment-item {
+  padding: 24px 4px;
+  border-top: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.thread-comment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.thread-comment-body {
+  margin: 14px 0 0;
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.thread-comment-delete {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #8a8a8a;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.thread-comment-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #111;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.thread-comment-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 20px 0 8px;
+  border-top: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.thread-action-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 48;
+  border: 0;
+  padding: 0;
+  background: rgba(17, 17, 17, 0.38);
+}
+
+.thread-action-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 49;
+  padding: 0 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.thread-action-sheet-content {
+  display: grid;
+  gap: 14px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.98);
+  padding: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+}
+
+.thread-action-sheet-handle {
+  width: 52px;
+  height: 5px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.16);
+}
+
+.thread-action-sheet-title {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.thread-action-sheet-description {
+  margin: 0;
+  color: #6f6f6f;
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+.thread-action-sheet-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 0;
+  border-radius: 18px;
+  background: #111;
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 800;
+}
+
+.thread-action-sheet-button.danger {
+  background: #111;
+}
+
+.thread-action-sheet-input {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  border-radius: 18px;
+  background: #fff;
+  color: #111;
+  padding: 0 16px;
+  font-size: 1rem;
+}
+
+.thread-action-sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }

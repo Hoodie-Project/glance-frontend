@@ -2,6 +2,7 @@ export type ThreadMarker = {
   id: string;
   title: string;
   tag: string;
+  gender: "MALE" | "FEMALE";
   dong: string;
   gu: string;
   city: string;
@@ -66,6 +67,7 @@ function createRegionMarkers(
     id: `${region}-${index + 1}`,
     title: `${titlePrefix} ${index + 1}`,
     tag: region,
+    gender: (index % 2 === 0 ? "MALE" : "FEMALE") as ThreadMarker["gender"],
     dong: admin.dong,
     gu: admin.gu,
     city: admin.city,

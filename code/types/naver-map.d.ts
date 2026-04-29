@@ -7,11 +7,17 @@ declare global {
     lng(): number;
   };
 
+  type NaverMapsBounds = {
+    getSW(): NaverMapsLatLng;
+    getNE(): NaverMapsLatLng;
+  };
+
   interface NaverMapsMap {
     panTo(position: NaverMapsLatLng): void;
     setZoom(zoom: number): void;
     getZoom(): number;
     getCenter(): NaverMapsLatLng;
+    getBounds(): NaverMapsBounds;
   }
 
   interface NaverMapsMarker {
@@ -47,8 +53,41 @@ declare global {
       addListener(target: NaverMapsMarker, eventName: "click", handler: () => void): void;
       addListener(target: NaverMapsMap, eventName: "zoom_changed", handler: () => void): void;
       addListener(target: NaverMapsMap, eventName: "idle", handler: () => void): void;
+      addListener(target: NaverMapsMap, eventName: "click", handler: () => void): void;
+    };
+    Service?: {
+      Status: {
+        OK: string;
+      };
+      OrderType: {
+        ADDR: string;
+        ROAD_ADDR: string;
+      };
+      reverseGeocode(
+        options: {
+          coords: NaverMapsLatLng;
+          orders?: string;
+        },
+        callback: (status: string, response?: NaverReverseGeocodeResponse) => void
+      ): void;
     };
   }
+
+  type NaverReverseGeocodeResponse = {
+    v2?: {
+      address?: {
+        roadAddress?: string;
+        jibunAddress?: string;
+      };
+      results?: Array<{
+        region?: {
+          area1?: { name?: string };
+          area2?: { name?: string };
+          area3?: { name?: string };
+        };
+      }>;
+    };
+  };
 
   interface Window {
     naver?: {

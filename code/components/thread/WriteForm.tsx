@@ -1,5 +1,7 @@
 "use client";
 
+import { createThread } from "@/api/thread";
+import type { AnimalLook, ThreadGender, VibeStyle } from "@/api/thread";
 import { ChevronLeft, ChevronRight, RefreshCw, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -8,14 +10,16 @@ type WriteFormProps = {
   currentLocation?: {
     lat: string;
     lng: string;
-    name?: string;
+    address?: string;
+    region?: string;
   } | null;
 };
 
 type LocationValue = {
   lat: number;
   lng: number;
-  name: string;
+  address: string;
+  region: string;
 };
 
 type FormErrors = Partial<
@@ -49,6 +53,30 @@ const DESCRIPTION_GROUPS = [
   }
 ] as const;
 
+const ANIMAL_LOOK_MAP: Record<string, AnimalLook> = {
+  강아지: "DOG",
+  고양이: "CAT",
+  여우: "FOX",
+  토끼: "RABBIT",
+  공룡: "DINOSAUR",
+  사슴: "DEER",
+  늑대: "WOLF",
+  햄스터: "HAMSTER",
+  곰돌이: "BEAR"
+};
+
+const VIBE_STYLE_MAP: Record<string, VibeStyle> = {
+  냉미남: "COLD_HANDSOME",
+  냉미녀: "COLD_BEAUTY",
+  온미남: "WARM_HANDSOME",
+  온미녀: "WARM_BEAUTY",
+  무해함: "HARMLESS",
+  퇴폐미: "DECADENT",
+  정석미남: "CLASSIC_HANDSOME",
+  정석미녀: "CLASSIC_BEAUTY",
+  과즙상: "FRESH"
+};
+
 function generateNickname() {
   const prefix = NICKNAME_PREFIXES[Math.floor(Math.random() * NICKNAME_PREFIXES.length)];
   const suffix = NICKNAME_SUFFIXES[Math.floor(Math.random() * NICKNAME_SUFFIXES.length)];
@@ -62,7 +90,9 @@ function generatePassword() {
   return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
 }
 
-function toLocationValue(currentLocation?: { lat: string; lng: string; name?: string } | null): LocationValue | null {
+function toLocationValue(
+  currentLocation?: { lat: string; lng: string; address?: string; region?: string } | null
+): LocationValue | null {
   if (!currentLocation) {
     return null;
   }
@@ -77,7 +107,8 @@ function toLocationValue(currentLocation?: { lat: string; lng: string; name?: st
   return {
     lat,
     lng,
-    name: currentLocation.name || `선택한 위치 (${lat.toFixed(5)}, ${lng.toFixed(5)})`
+    address: currentLocation.address || `선택한 위치 (${lat.toFixed(5)}, ${lng.toFixed(5)})`,
+    region: currentLocation.region || "주소 정보를 불러오는 중입니다."
   };
 }
 
@@ -98,10 +129,32 @@ function fieldStyle(hasError = false) {
   };
 }
 
-function fakeCreateThread() {
-  return new Promise<void>((resolve) => {
-    window.setTimeout(() => resolve(), 500);
-  });
+function toApiGender(value: "male" | "female" | null): ThreadGender | null {
+  if (value === "male") {
+    return "MALE";
+  }
+
+  if (value === "female") {
+    return "FEMALE";
+  }
+
+  return null;
+}
+
+function toAnimalLooks(value: string | null): AnimalLook[] | undefined {
+  if (!value || !ANIMAL_LOOK_MAP[value]) {
+    return undefined;
+  }
+
+  return [ANIMAL_LOOK_MAP[value]];
+}
+
+function toVibeStyles(value: string | null): VibeStyle[] | undefined {
+  if (!value || !VIBE_STYLE_MAP[value]) {
+    return undefined;
+  }
+
+  return [VIBE_STYLE_MAP[value]];
 }
 
 export function WriteForm({ currentLocation }: WriteFormProps) {
@@ -254,6 +307,8 @@ export function WriteForm({ currentLocation }: WriteFormProps) {
 
     if (isEmpty(nickname)) {
       nextErrors.nickname = "닉네임을 입력해주세요.";
+    } else if (nickname.length > 20) {
+      nextErrors.nickname = "닉네임은 최대 20자까지 입력할 수 있습니다.";
     }
 
     if (isEmpty(password)) {
@@ -262,13 +317,17 @@ export function WriteForm({ currentLocation }: WriteFormProps) {
       nextErrors.password = "비밀번호는 4자 이상 8자 이하여야 합니다.";
     }
 
+    if (!gender) {
+      nextErrors.gender = "성별을 선택해주세요.";
+    }
+
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
 
   const handleBack = () => {
     if (!isDirty) {
-      router.back();
+      router.push("/map");
       return;
     }
 
@@ -280,10 +339,34 @@ export function WriteForm({ currentLocation }: WriteFormProps) {
       return;
     }
 
+    const apiGender = toApiGender(gender);
+
+    if (!location || !apiGender) {
+      setSnackbarMessage("필수 값을 다시 확인해주세요");
+      return;
+    }
+
     try {
       setIsSubmitting(true);
-      await fakeCreateThread();
+      const response = await createThread({
+        nickname: nickname.trim(),
+        title: title.trim(),
+        content: content.trim(),
+        latitude: location.lat,
+        longitude: location.lng,
+        gender: apiGender,
+        password: password.trim(),
+        tags,
+        animalLooks: toAnimalLooks(description),
+        vibeStyles: toVibeStyles(description)
+      });
+
       window.sessionStorage.removeItem(WRITE_DRAFT_KEY);
+
+      if (response.generatedPassword) {
+        window.sessionStorage.setItem("glance-last-generated-password", response.generatedPassword);
+      }
+
       router.push("/feed");
     } catch {
       setSnackbarMessage("잠시 후 다시 시도해주세요");
@@ -377,13 +460,20 @@ export function WriteForm({ currentLocation }: WriteFormProps) {
                 textAlign: "left"
               }}
             >
-              <span style={{ color: location ? "var(--foreground)" : "var(--muted)" }}>
-                {location ? location.name : "지도에서 장소 선택"}
+              <span
+                style={{
+                  color: location ? "var(--foreground)" : "var(--muted)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                {location ? location.address : "지도에서 장소 선택"}
               </span>
               <ChevronRight size={18} />
             </button>
             <span style={{ color: errors.location ? "#ff8f8f" : "var(--muted)", fontSize: 13 }}>
-              {errors.location ?? "지도에서 선택한 좌표를 작성 위치로 사용합니다."}
+              {errors.location ?? (location ? location.region : "지도에서 선택한 좌표를 작성 위치로 사용합니다.")}
             </span>
           </label>
 
@@ -483,10 +573,13 @@ export function WriteForm({ currentLocation }: WriteFormProps) {
               ].map((item) => (
                 <button
                   key={item.value}
-                  onClick={() => setGender(item.value)}
+                  onClick={() => {
+                    setGender(item.value);
+                    if (errors.gender) setErrors((prev) => ({ ...prev, gender: undefined }));
+                  }}
                   type="button"
                   style={{
-                    ...fieldStyle(false),
+                    ...fieldStyle(Boolean(errors.gender)),
                     background: gender === item.value ? "var(--accent-soft)" : "rgba(255,255,255,0.04)",
                     borderColor: gender === item.value ? "rgba(143, 92, 255, 0.36)" : "var(--border)",
                     cursor: "pointer"
@@ -496,6 +589,9 @@ export function WriteForm({ currentLocation }: WriteFormProps) {
                 </button>
               ))}
             </div>
+            {errors.gender ? (
+              <span style={{ color: "#ff8f8f", fontSize: 13 }}>{errors.gender}</span>
+            ) : null}
           </div>
 
           <div style={{ display: "grid", gap: 10 }}>
@@ -682,7 +778,7 @@ export function WriteForm({ currentLocation }: WriteFormProps) {
                 onClick={() => {
                   setIsLeaveModalOpen(false);
                   window.sessionStorage.removeItem(WRITE_DRAFT_KEY);
-                  router.back();
+                  router.push("/map");
                 }}
                 type="button"
               >

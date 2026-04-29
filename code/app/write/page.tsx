@@ -4,7 +4,8 @@ type WritePageProps = {
   searchParams: Promise<{
     lat?: string;
     lng?: string;
-    locationName?: string;
+    address?: string;
+    region?: string;
   }>;
 };
 
@@ -15,7 +16,8 @@ export default async function WritePage({ searchParams }: WritePageProps) {
       ? {
           lat: params.lat,
           lng: params.lng,
-          name: params.locationName
+          address: params.address,
+          region: params.region
         }
       : null;
 
