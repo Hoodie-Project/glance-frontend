@@ -21,22 +21,18 @@ function loadNaverMapSdk(clientId: string) {
     return scriptLoadingPromise;
   }
 
+  const existingScript = document.getElementById(NAVER_MAP_SCRIPT_ID) as HTMLScriptElement | null;
+
+  if (existingScript) {
+    existingScript.remove();
+  }
+
   scriptLoadingPromise = new Promise<void>((resolve, reject) => {
-    const existingScript = document.getElementById(NAVER_MAP_SCRIPT_ID) as HTMLScriptElement | null;
-
-    if (existingScript) {
-      existingScript.addEventListener("load", () => resolve(), { once: true });
-      existingScript.addEventListener("error", () => reject(new Error("Failed to load Naver Map SDK.")), {
-        once: true
-      });
-      return;
-    }
-
     const script = document.createElement("script");
     script.id = NAVER_MAP_SCRIPT_ID;
     script.async = true;
     script.defer = true;
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${clientId}`;
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${clientId}&submodules=geocoder`;
 
     script.onload = () => {
       if (window.naver?.maps) {
@@ -65,6 +61,7 @@ export function useNaverMap(clientId?: string) {
   const [error, setError] = useState<string | null>(
     clientId ? null : "NEXT_PUBLIC_NAVER_MAP_CLIENT_ID가 설정되지 않았습니다."
   );
+  const hasGeocoder = typeof window !== "undefined" && Boolean(window.naver?.maps?.Service);
 
   useEffect(() => {
     if (!clientId) {
@@ -93,6 +90,7 @@ export function useNaverMap(clientId?: string) {
 
   return {
     error,
+    hasGeocoder,
     isReady: status === "ready",
     status
   };

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 
 export default function TabsLayout({
@@ -6,9 +7,11 @@ export default function TabsLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="app-shell" style={{ paddingBottom: "calc(var(--tabbar-height) + 24px)" }}>
+    <div className="app-shell">
       {children}
-      <BottomTabBar />
+      <Suspense fallback={null}>
+        <BottomTabBar />
+      </Suspense>
     </div>
   );
 }

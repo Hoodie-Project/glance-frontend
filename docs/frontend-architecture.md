@@ -124,7 +124,6 @@
 - 구현: [app/(tabs)/layout.tsx](/Users/shinhayeong/glance-frontend/code/app/(tabs)/layout.tsx)
 - 역할: 지도/피드 공통 앱 쉘
 - 포함 요소
-  - 플로팅 글쓰기 버튼(FAB)
   - 하단 탭바
   - 공통 콘텐츠 패딩
 
@@ -133,14 +132,21 @@
 - 구현: [app/(tabs)/map/page.tsx](/Users/shinhayeong/glance-frontend/code/app/(tabs)/map/page.tsx)
 - 역할: 지도 메인 화면
 - 포함 요소
-  - 페이지 헤더
-  - 핫한 지역 태그 리스트
-  - 지도 영역
+  - 저장된 좌표 조회 중심 지도 화면
+  - 지도 상단 상태 카드
+  - 지도 우측 액션 버튼
+  - 현재 위치 복귀 버튼
+  - 마커 요약 카드
+  - 현재 위치 기반 제보 진입 모달
 
 ### `/feed`
 
 - 구현: [app/(tabs)/feed/page.tsx](/Users/shinhayeong/glance-frontend/code/app/(tabs)/feed/page.tsx)
 - 역할: 최신 스레드 피드
+- 포함 요소
+  - 페이지 헤더
+  - 태그 필터 리스트
+  - 최신순 스레드 목록
 
 ### `/thread/[id]`
 
@@ -151,6 +157,12 @@
 
 - 구현: [app/write/page.tsx](/Users/shinhayeong/glance-frontend/code/app/write/page.tsx)
 - 역할: 스레드 작성 화면
+- 포함 요소
+  - 뒤로가기 버튼 및 이탈 확인 모달
+  - 제목, 본문, 장소, 닉네임, 비밀번호 입력
+  - 태그 입력 진입 영역
+  - 힐끔 대상 성별/묘사 선택
+  - 확인 버튼과 유효성 검증 상태
 
 ## 7. 서버 컴포넌트 / 클라이언트 컴포넌트 분리 기준
 
@@ -170,13 +182,13 @@
 - [components/navigation/BottomTabBar.tsx](/Users/shinhayeong/glance-frontend/code/components/navigation/BottomTabBar.tsx)
   - 현재 경로에 따라 활성 탭 표시가 필요함
 - [components/map/MapView.tsx](/Users/shinhayeong/glance-frontend/code/components/map/MapView.tsx)
-  - 추후 네이버 지도 SDK, 브라우저 API 연동 대상
+  - 네이버 지도 SDK, geolocation, 지도 오버레이 UI를 포함하는 핵심 지도 컴포넌트
 - [components/thread/FeedList.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/FeedList.tsx)
   - framer-motion 사용
 - [components/thread/ThreadDetail.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/ThreadDetail.tsx)
   - 좋아요/댓글 입력 상태 관리
 - [components/thread/WriteForm.tsx](/Users/shinhayeong/glance-frontend/code/components/thread/WriteForm.tsx)
-  - 폼 입력 상태와 버튼 활성화 처리
+  - 폼 입력 상태, 랜덤 초기값, 버튼 활성화, 유효성 검증 처리
 
 ### 분리 의도
 
@@ -225,25 +237,70 @@
 - 캐시 정책
 - 웹뷰 환경에서 설치/업데이트 UX 검토
 
-## 10. 지도 아키텍처 방향
+## 10. 스레드 작성 아키텍처 방향
+
+### 작성 상태 모델
+
+- `title: string`
+- `content: string`
+- `location: { lat: number; lng: number; name: string } | null`
+- `nickname: string`
+- `password: string`
+- `tags: string[]`
+- `gender: "male" | "female" | null`
+- `description: string | null`
+- `errors`
+  - 필수 필드 누락, 글자 수 초과, 비밀번호 길이 오류를 표시하기 위한 UI 전용 상태
+- `isDirty`
+  - 뒤로가기 시 이탈 확인 모달 노출 여부 판단에 사용
+
+### 작성 화면 분리 원칙
+
+- `app/write/page.tsx`
+  - 작성 화면 라우트 엔트리
+- `components/thread/WriteForm.tsx`
+  - 메인 입력 폼과 검증 로직 담당
+- 추후 분리 후보
+  - `components/thread/TagInputSheet.tsx` 또는 `TagInputPage.tsx`
+  - `components/thread/LeaveConfirmDialog.tsx`
+  - `components/thread/DescriptionSelector.tsx`
+
+### 작성 플로우 메모
+
+- 초기 진입 시 닉네임과 비밀번호 랜덤값을 생성해 폼 초기값으로 주입
+- 확인 버튼 활성 조건은 제목, 본문, 장소, 비밀번호 입력 여부 기준
+- 제출 시에는 버튼 활성 여부와 별개로 전체 유효성 검사를 한 번 더 수행
+- 태그 입력은 메인 폼 내부 직접 입력보다 별도 단계로 분리하는 것이 요구사항에 맞음
+- 장소 입력은 지도 `+` 좌표 선택 플로우와 같은 소스를 재사용하는 방향이 적합함
+
+## 11. 지도 아키텍처 방향
 
 ### 현재 상태
 
-- [components/map/MapView.tsx](/Users/shinhayeong/glance-frontend/code/components/map/MapView.tsx)는 임시 레이아웃
-- 아직 네이버 지도 SDK는 연결되지 않음
+- [components/map/MapView.tsx](/Users/shinhayeong/glance-frontend/code/components/map/MapView.tsx)에서 네이버 지도 SDK 로더와 지도 초기화가 동작함
+- 현재 위치는 클라이언트에서만 확인하고, 지도 중심 이동과 제보 진입에만 사용함
+- 지도 기본 역할은 저장된 스레드 좌표 조회
+- 마커 클릭 시 요약 카드가 갱신되는 구조가 들어가 있음
+- 하단 `+` FAB는 제거되었고, 지도 내 제보 플로우 중심으로 전환 중
 
 ### 추후 구현 방향
 
-- 네이버 지도 SDK 로더를 클라이언트 컴포넌트에서만 실행
 - 지도 인스턴스 생성, 마커 생성, 클러스터링은 `MapView` 또는 하위 전용 훅/컴포넌트로 분리
+- 마커 재조회용 새로고침 버튼을 API 호출과 연결
+- 클러스터링 숫자 표기는 최대 `+99` 정책 반영
+- 기본 화면은 조회 전용으로 두고, 제보하기 버튼을 통해서만 좌표 등록 진입
 - 서버 컴포넌트에서는 지도 SDK를 직접 다루지 않음
 
 ### 권장 분리안
 
 - `components/map/MapView.tsx`
-  - 지도 화면 UI 컨테이너
+  - 지도 화면 컨테이너 및 오버레이 조합
 - `components/map/NaverMap.tsx`
   - 실제 지도 렌더링
+- `components/map/MapMarkers.tsx`
+  - 마커 및 클러스터 렌더링
+- `components/map/ReportSheet.tsx`
+  - 현재 위치 기반 제보 확인 바텀시트
 - `hooks/use-naver-map.ts`
   - SDK 로드 및 인스턴스 생명주기 관리
 
@@ -253,12 +310,17 @@
 
 - 모든 화면은 목업 데이터 기반
 - API 연동은 아직 없음
+- 지도 마커도 현재는 더미 데이터 기반
 
 ### 확장 방향
 
 - 피드 목록
   - 서버 컴포넌트에서 초기 데이터 로드 가능
   - 이후 무한 스크롤은 클라이언트 쪽 추가 요청 처리
+- 지도 마커 목록
+  - 최초 진입 시 저장된 좌표 목록 조회
+  - 새로고침 버튼 클릭 시 현재 영역 기준으로 마커 재조회
+  - 클러스터링은 클라이언트 렌더링 계층에서 처리
 - 스레드 상세
   - 서버 컴포넌트에서 상세 데이터 조회
   - 좋아요/댓글 등록은 클라이언트 액션 처리
@@ -292,24 +354,26 @@
 - 지도처럼 client-heavy한 기능을 국소화해 전체 구조는 서버 중심으로 유지 가능
 - 모바일 웹뷰에 필요한 공통 앱 쉘 구성이 이미 반영됨
 - 피드/상세/작성/지도 흐름을 빠르게 병렬 개발할 수 있음
+- 지도 조회와 제보 진입 플로우를 분리하기 쉬운 구조임
 
 ## 14. 현재 한계와 후속 작업
 
 ### 한계
 
-- 실제 네이버 지도 SDK 미연동
+- 마커 재조회, 클러스터링, 제보하기 버튼 구조는 요구사항 기준으로 추가 구현 필요
 - API, 상태관리, 인증 전략 미정
 - 디자인 시스템은 초기 토큰 수준
 - 테스트 설정 미구성
 
 ### 후속 작업 우선순위
 
-1. 의존성 설치 및 개발 서버 실행 검증
-2. 네이버 지도 SDK 연동
-3. 피드/상세/작성 API 명세 확정
-4. 더미 데이터 제거 및 실제 데이터 계층 구성
-5. 공통 UI 컴포넌트 정리
-6. PWA 아이콘 및 캐시 전략 보완
+1. 지도 조회 전용 플로우와 제보하기 버튼 구조 반영
+2. 지도 마커 재조회 API 연결
+3. 마커 클러스터링 및 `+99` 표기 정책 적용
+4. 피드/상세/작성 API 명세 확정
+5. 더미 데이터 제거 및 실제 데이터 계층 구성
+6. 공통 UI 컴포넌트 정리
+7. PWA 아이콘 및 캐시 전략 보완
 
 ## 15. 관련 파일
 
