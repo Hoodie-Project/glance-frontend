@@ -36,7 +36,7 @@ case "$CURRENT_BRANCH" in
     PROCESS_NAME="glance-front-main"
     ;;
   dev)
-    PORT="4000"
+    PORT="3001"
     PROCESS_NAME="glance-front-dev"
     ;;
   *)
