@@ -106,7 +106,10 @@ export function searchThreadsByTag(params: SearchThreadsParams) {
 export function getMapPins(params: MapPinsParams) {
   return apiClient<ThreadPin[]>("/api/threads/map/pins", {
     method: "GET",
-    query: params
+    query: {
+      ...params,
+      gender: params.gender ?? "ALL"
+    }
   });
 }
 
@@ -126,6 +129,9 @@ export function normalizeMapCluster(cluster: MapClusterResponse): MapCluster {
 export function getMapClusters(params: MapClustersParams) {
   return apiClient<MapClusterResponse[]>("/api/threads/map/clusters", {
     method: "GET",
-    query: params
+    query: {
+      ...params,
+      gender: params.gender ?? "ALL"
+    }
   }).then((clusters) => clusters.map(normalizeMapCluster));
 }

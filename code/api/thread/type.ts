@@ -117,7 +117,7 @@ export type MapPinsParams = {
   swLng: number;
   neLat: number;
   neLng: number;
-  gender: "ALL" | ThreadGender;
+  gender?: "ALL" | ThreadGender;
 };
 
 export type ThreadPin = {
@@ -131,6 +131,7 @@ export type MapClustersParams = {
   swLng: number;
   neLat: number;
   neLng: number;
+  gender?: "ALL" | ThreadGender;
 };
 
 export type MapClusterLevel = "DONG" | "SIGUNGU" | "SIDO" | "METRO" | string;

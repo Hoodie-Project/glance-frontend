@@ -373,13 +373,14 @@ export function MapView({ isSelectMode = false, returnTo = "/write" }: MapViewPr
   }, [currentLocation, isReady, isSelectMode]);
 
   const clusterQuery = useQuery({
-    queryKey: ["mapClusters", mapBounds?.swLat, mapBounds?.swLng, mapBounds?.neLat, mapBounds?.neLng, refreshKey],
+    queryKey: ["mapClusters", mapBounds?.swLat, mapBounds?.swLng, mapBounds?.neLat, mapBounds?.neLng, genderFilter, refreshKey],
     queryFn: () =>
       getMapClusters({
         swLat: mapBounds!.swLat,
         swLng: mapBounds!.swLng,
         neLat: mapBounds!.neLat,
-        neLng: mapBounds!.neLng
+        neLng: mapBounds!.neLng,
+        gender: genderFilter
       }),
     enabled: isReady && !!mapBounds && !isMarkerView
   });
