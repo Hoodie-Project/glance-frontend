@@ -2,8 +2,8 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Crosshair, MapPin, RefreshCcw } from "lucide-react";
-import { getDongMarkers, getMapPins, getThread } from "@/api/thread";
-import type { DongMarker, ThreadDetail, ThreadGender, ThreadPin } from "@/api/thread";
+import { getMapClusters, getMapPins, getThread } from "@/api/thread";
+import type { MapCluster, ThreadDetail, ThreadGender, ThreadPin } from "@/api/thread";
 import { useNaverMap } from "@/hooks/use-naver-map";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -195,15 +195,15 @@ function drawPinMarkers(
 function drawClusterMarkers(
   maps: NaverMapsNamespace,
   map: NaverMapsMap,
-  clusters: DongMarker[],
+  clusters: MapCluster[],
   level: ClusterLevel,
   onSelectCluster: (coordinate: Coordinate, nextZoom: number) => void
 ) {
   return clusters.map((cluster) => {
     const markerInstance = new maps.Marker({
       map,
-      position: new maps.LatLng(cluster.lat, cluster.lng),
-      title: `${cluster.dong} ${cluster.count}개`,
+      position: new maps.LatLng(cluster.latitude, cluster.longitude),
+      title: `${cluster.name} ${cluster.count}개`,
       icon: {
         content: createClusterContent(cluster.count),
         anchor: {
@@ -216,8 +216,8 @@ function drawClusterMarkers(
     maps.Event.addListener(markerInstance, "click", () => {
       onSelectCluster(
         {
-          lat: cluster.lat,
-          lng: cluster.lng
+          lat: cluster.latitude,
+          lng: cluster.longitude
         },
         getNextZoom(level)
       );
@@ -372,10 +372,10 @@ export function MapView({ isSelectMode = false, returnTo = "/write" }: MapViewPr
     };
   }, [currentLocation, isReady, isSelectMode]);
 
-  const dongMarkerQuery = useQuery({
-    queryKey: ["mapDongMarkers", mapBounds?.swLat, mapBounds?.swLng, mapBounds?.neLat, mapBounds?.neLng, refreshKey],
+  const clusterQuery = useQuery({
+    queryKey: ["mapClusters", mapBounds?.swLat, mapBounds?.swLng, mapBounds?.neLat, mapBounds?.neLng, refreshKey],
     queryFn: () =>
-      getDongMarkers({
+      getMapClusters({
         swLat: mapBounds!.swLat,
         swLng: mapBounds!.swLng,
         neLat: mapBounds!.neLat,
@@ -414,7 +414,7 @@ export function MapView({ isSelectMode = false, returnTo = "/write" }: MapViewPr
         }
       : null;
   const resolvedAddress = selectedAddress ?? fallbackAddress;
-  const mapDataError = dongMarkerQuery.error || pinQuery.error;
+  const mapDataError = clusterQuery.error || pinQuery.error;
 
   useEffect(() => {
     if (!isReady || !mapRef.current || !window.naver?.maps) {
@@ -433,11 +433,11 @@ export function MapView({ isSelectMode = false, returnTo = "/write" }: MapViewPr
       return;
     }
 
-    markerRefs.current = drawClusterMarkers(maps, mapInstance, dongMarkerQuery.data ?? [], clusterLevel, (coordinate, nextZoom) => {
+    markerRefs.current = drawClusterMarkers(maps, mapInstance, clusterQuery.data ?? [], clusterLevel, (coordinate, nextZoom) => {
       mapInstance.panTo(toLatLng(maps, coordinate));
       mapInstance.setZoom(nextZoom);
     });
-  }, [clusterLevel, dongMarkerQuery.data, isMarkerView, isReady, mapPins]);
+  }, [clusterLevel, clusterQuery.data, isMarkerView, isReady, mapPins]);
 
   const handleRefreshMarkers = () => {
     if (!mapRef.current || !window.naver?.maps) {
@@ -470,12 +470,12 @@ export function MapView({ isSelectMode = false, returnTo = "/write" }: MapViewPr
           mapRef.current.panTo(toLatLng(window.naver.maps, nextLocation));
           setRefreshKey((value) => value + 1);
           queryClient.invalidateQueries({ queryKey: ["mapPins"] });
-          queryClient.invalidateQueries({ queryKey: ["mapDongMarkers"] });
+          queryClient.invalidateQueries({ queryKey: ["mapClusters"] });
         },
         () => {
           setRefreshKey((value) => value + 1);
           queryClient.invalidateQueries({ queryKey: ["mapPins"] });
-          queryClient.invalidateQueries({ queryKey: ["mapDongMarkers"] });
+          queryClient.invalidateQueries({ queryKey: ["mapClusters"] });
         },
         {
           enableHighAccuracy: true,
@@ -488,7 +488,7 @@ export function MapView({ isSelectMode = false, returnTo = "/write" }: MapViewPr
 
     setRefreshKey((value) => value + 1);
     queryClient.invalidateQueries({ queryKey: ["mapPins"] });
-    queryClient.invalidateQueries({ queryKey: ["mapDongMarkers"] });
+    queryClient.invalidateQueries({ queryKey: ["mapClusters"] });
   };
 
   const handleMoveToCurrentLocation = () => {
