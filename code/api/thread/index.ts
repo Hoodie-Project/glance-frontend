@@ -1,11 +1,12 @@
 import { apiClient } from "@/api/client";
 import type {
   DeletePayload,
-  DongMarker,
-  DongMarkersParams,
   FeedParams,
   FeedResponse,
   LikeToggleResponse,
+  MapCluster,
+  MapClusterResponse,
+  MapClustersParams,
   NearbyFeedParams,
   PageResponse,
   SearchThreadsParams,
@@ -21,11 +22,13 @@ export type {
   AnimalLook,
   CommentResponse,
   DeletePayload,
-  DongMarker,
-  DongMarkersParams,
   FeedParams,
   FeedResponse,
   LikeToggleResponse,
+  MapCluster,
+  MapClusterLevel,
+  MapClusterResponse,
+  MapClustersParams,
   NearbyFeedParams,
   PageResponse,
   Region,
@@ -103,13 +106,32 @@ export function searchThreadsByTag(params: SearchThreadsParams) {
 export function getMapPins(params: MapPinsParams) {
   return apiClient<ThreadPin[]>("/api/threads/map/pins", {
     method: "GET",
-    query: params
+    query: {
+      ...params,
+      gender: params.gender ?? "ALL"
+    }
   });
 }
 
-export function getDongMarkers(params: DongMarkersParams) {
-  return apiClient<DongMarker[]>("/api/threads/map/dong", {
+export function normalizeMapCluster(cluster: MapClusterResponse): MapCluster {
+  return {
+    name: cluster.name || cluster.dong || cluster.sigungu || cluster.sido || "지역",
+    count: cluster.count ?? cluster.threadCount ?? 0,
+    latitude: cluster.latitude ?? cluster.lat ?? cluster.centerLat ?? 0,
+    longitude: cluster.longitude ?? cluster.lng ?? cluster.centerLng ?? 0,
+    level: cluster.level,
+    sido: cluster.sido,
+    sigungu: cluster.sigungu,
+    dong: cluster.dong
+  };
+}
+
+export function getMapClusters(params: MapClustersParams) {
+  return apiClient<MapClusterResponse[]>("/api/threads/map/clusters", {
     method: "GET",
-    query: params
-  });
+    query: {
+      ...params,
+      gender: params.gender ?? "ALL"
+    }
+  }).then((clusters) => clusters.map(normalizeMapCluster));
 }

@@ -117,7 +117,7 @@ export type MapPinsParams = {
   swLng: number;
   neLat: number;
   neLng: number;
-  gender: "ALL" | ThreadGender;
+  gender?: "ALL" | ThreadGender;
 };
 
 export type ThreadPin = {
@@ -126,20 +126,41 @@ export type ThreadPin = {
   longitude: number;
 };
 
-export type DongMarkersParams = {
+export type MapClustersParams = {
   swLat: number;
   swLng: number;
   neLat: number;
   neLng: number;
+  gender?: "ALL" | ThreadGender;
 };
 
-export type DongMarker = {
-  sido: string;
-  sigungu: string;
-  dong: string;
+export type MapClusterLevel = "DONG" | "SIGUNGU" | "SIDO" | "METRO" | string;
+
+export type MapCluster = {
+  name: string;
   count: number;
-  lat: number;
-  lng: number;
+  latitude: number;
+  longitude: number;
+  level?: MapClusterLevel;
+  sido?: string;
+  sigungu?: string;
+  dong?: string;
+};
+
+export type MapClusterResponse = {
+  level?: MapClusterLevel;
+  name?: string;
+  count?: number;
+  threadCount?: number;
+  latitude?: number;
+  longitude?: number;
+  lat?: number;
+  lng?: number;
+  centerLat?: number;
+  centerLng?: number;
+  sido?: string;
+  sigungu?: string;
+  dong?: string;
 };
 
 export type DeletePayload = {
